@@ -1,0 +1,1 @@
+from util.data_source.zhongjing.fetcher import query_population, query_gdp
