@@ -7,3 +7,5 @@ PopulationItem = namedtuple(
 # year:int gdp:float（亿） unit:MONEY_UNIT
 GDPItem = namedtuple(
     'GDPItem', ['year', 'gdp', 'unit'])
+
+    

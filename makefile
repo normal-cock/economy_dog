@@ -10,4 +10,4 @@ clean:
 	rm -rf ~/.economy_dog
 
 run:
-	PYTHONPATH=. python main.py gen_report
+	PYTHONPATH=. python main.py annual_report

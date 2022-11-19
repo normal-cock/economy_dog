@@ -1,14 +1,17 @@
 
 - [格式](#格式)
 - [新关注指标](#新关注指标)
+- [抓取](#抓取)
+    - [思路1-zhongjing](#思路1-zhongjing)
+    - [思路2-国家统计局](#思路2-国家统计局)
+    - [思路3-baidu](#思路3-baidu)
+    - [中国房价行情网（待研究）](#中国房价行情网待研究)
+    - [世界银行数据](#世界银行数据)
+    - [上交所和深交所](#上交所和深交所)
 - [TODO](#todo)
-    - [初版v0.2](#初版v02)
+    - [v0.2](#v02)
 - [DONE](#done)
     - [初版v0.1](#初版v01)
-- [抓取](#抓取)
-    - [思路1-baidu](#思路1-baidu)
-    - [思路2-zhongjing](#思路2-zhongjing)
-    - [思路3-国家统计局](#思路3-国家统计局)
   
 ## 格式
 
@@ -52,9 +55,50 @@
 
 房价指数
 
+## 抓取
+
+### 思路1-zhongjing
+
+1. 在`https://wap.ceidata.cei.cn/`页面通过`https://wap.ceidata.cei.cn/listSquences`拿到数据的ID
+2. 通过查询`https://wap.ceidata.cei.cn/detail?id={id}`查询
+
+### 思路2-国家统计局
+
+https://data.stats.gov.cn/search.htm?s=%E6%88%90%E9%83%BD%20%E6%88%BF%E4%BB%B7%E6%8C%87%E6%95%B0
+
+### 思路3-baidu
+
+城市列表自己挑选
+使用baidu的web端接口
+
+### 中国房价行情网（待研究）
+
+相关指标：
+房价、租房价、租售比
+
+https://zhuanlan.zhihu.com/p/50158234
+
+### 世界银行数据
+
+人口: https://data.worldbank.org.cn/indicator/SP.POP.65UP.TO.ZS?locations=US&most_recent_value_desc=true
+
+### 上交所和深交所
+
+A股总市值
+上交所：http://www.sse.com.cn/market/view/
+深交所：http://www.szse.cn/market/overview/index.html
+
 ## TODO
 
-### 初版v0.2
+### v0.2
+
+人口和GDP中，省份和城市分开统计——Done
+使用df.rename(columns={'xxx':'readable name'}, inplace=True)来展示列名——Done
+日报：——Done
+    A股总市值可以用上交所总市值代替，看比例都是一样的。观察当前proportion在过去十年的50分位的对比
+    大趋势：A股总市值/上一年GDP。关注相同月份的年同比变化
+cased city中标出每个指标的强、中、弱（强代表超过>=75分位，中代表75分位> >25分位，弱代表低于<=25分位）——Done
+70城房价指数
 
 ## DONE
 
@@ -67,36 +111,3 @@ html的目录、表头的悬浮——Done
 重点关注城市。500万人口以上，且1年gdp增速、10年gdp增速在50%以上，1年人口增速、10年人口增速在75%以上的城市——Done
 发邮件。用附件发送html，能够预览，然后用css限制mobile情况下的body的width，方便左右滑动——DONE
 
-## 抓取
-
-### 思路1-baidu
-
-城市列表自己挑选
-使用baidu的web端接口
-
-``` sh
-curl 'https://www.baidu.com/ssid=8a3cb4f3b6ee333339393e94/from=844b/s?word=%E5%8C%97%E4%BA%ACgdp&sa=tb&ts=7505392&t_kt=0&ie=utf-8&rsv_t=356eXoQCqLLvXpnBIYsk3Vl8om%252FiQxNkkuHFpp2vicHJHUCT5tQDYL6pXg&ms=1&rsv_pq=9461649053838353846&gpc=&ss=&rqlang=zh&oq=%E5%8C%97%E4%BA%ACgdp' \
-  -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' \
-  -H 'Accept-Language: zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7' \
-  -H 'Connection: keep-alive' \
-  -H 'Cookie: wpr=0; BDICON=10294984.98; PSTM=1573118650; BIDUPSID=27BE6C62390A8CB7C9E672456E197D59; __yjs_duid=1_13d37e267355188f602a0cb208c8f31e1621685932151; BD_UPN=123253; BAIDUID=21D3822E6436CD502077A2219813FCDB:SL=0:NR=10:FG=1; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BD_CK_SAM=1; BD_HOME=1; BA_HECTOR=8ha02k858081058k0l2l4rou1hd7m3417; BDUSS=RFaH5ETX5OblN1VWp6cEJQVHRyb3ExZVZCWWl4dm9sTGRBWjhiOUwxNmFaZnRpRVFBQUFBJCQAAAAAAAAAAAEAAACKPD6UtPO27jMzOTkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJrY02Ka2NNibU; SIGNIN_UC=70a2711cf1d3d9b1a82d2f87d633bd8a04080631644lnsICEFN1HmyS5ySw%2FnlZKMlw7Y8WIlfMjVbXOCP2n7ZXHBKShahJyerE0XfP2eSpan6VJeKxcOD6wWgK4POl06QDFTryn3goUGWFB7C0B82bU5wt%2FNXAG0a9AUxrnRN9FiuGNsqH0Lf8xaABGEEF18nHhf6HJcjtUg%2BWg7tLuxQOA1WsS%2FDG%2BEYGLUCQUhWTDH6NvWyO1qKYSbWt%2B0uzRBX3qveoVmUeJ9dqaJvV5Z9Z%2FyXOScozq4UK5eeVEvn2AOr0hn1jZwNI73EZuWconNzcvzY4q0%2FfojWCpzP4ts%3D76533537410071466927003039893956; bdindexid=cvd660bqh9mqvlm374aun3g1g2; BAIDUID_BFESS=25E186E7D669A65F46A62925EC9CD850:FG=1; shifen[1251869_68516]=1658050836; BCLID=8557467552085433283; BDSFRCVID=hF4OJexroG0leprDFc0DKwWaCcpWxY5TDYrELPfiaimDVu-VJeC6EG0Pts1-dEu-EHtdogKK0mOTHv8F_2uxOjjg8UtVJeC6EG0Ptf8g0M5; H_BDCLCKID_SF=tJPjVCPbtD03H48k-4QEbbQH-UnLqMohX2OZ04n-ah02JKjbXUOU3JtsypJUaPvLW20j0h7m3UTKsq76Wh35K5tTQP6rLt-q3KJ4KKJxbPO2ShOG5-5vLfAFhUJiB5OLBan7LDnIXKohJh7FM4tW3J0ZyxomtfQxtNRJ0DnjtpChbC_mD5uWDTjWeU5eetjK2CntsJOOaCvm8hbOy4oWK441DhADQMRR3NTe0pv5QbnsDqvoD-Jc3M04K4o9-hvT-54e2p3FBUQJMl31Qft20b0yKbOm-R3aW26r5R7jWhk2Dq72ybDWQlRX5q79atTMfNTJ-qcH0KQpsIJM5-DWbT8IjHCetT_8JJFq_Cv5b-0_qP3T5tQ_-Pk_qxby26nZyec9aJ5nJD_MDDne5U6UQR8mh-RfL-om5aFJhxjKQpP-HJ7pQMJJ0fF00J5d2fcltN5DKl0MLp6Ybb0xynoYXpkbXfnMBMPjamOnaPLy3fAKftnOM46JehL3346-35543bRTLnLy5KJtMDFlePr_b-Lbqx5Ka43tHD7yWCvStKbcOR59K4nnD-A8Kh5R0tJI523f-bjnK-JRJMIG3MOZKxLT0Mj054cL3NctsxQF5l8-sq0x0bO5DDuOQq_L0xvJ5IOMahkMal7xO-L9QlPK5JkgMx6MqpQJQeQ-5KQN3KJmfbL9bT3YjjTLeUrXKPQOHDrKBRbaHJOoDDvdQ6Ocy4LbKxnxJP7--TrRKJ8M3pvbSnjJ-n3R2hc03-OkbfQrLIc03RTE3UQhKfQ_bf--QfbQ0hOeJCrb36ILKln25n7JOpkxhfnxyb5bQRPH-Rv92DQMVU52QqcqEIQHQT3m5-5bbN3ut6T2-DA__I8yfx5; BCLID_BFESS=8557467552085433283; BDSFRCVID_BFESS=hF4OJexroG0leprDFc0DKwWaCcpWxY5TDYrELPfiaimDVu-VJeC6EG0Pts1-dEu-EHtdogKK0mOTHv8F_2uxOjjg8UtVJeC6EG0Ptf8g0M5; H_BDCLCKID_SF_BFESS=tJPjVCPbtD03H48k-4QEbbQH-UnLqMohX2OZ04n-ah02JKjbXUOU3JtsypJUaPvLW20j0h7m3UTKsq76Wh35K5tTQP6rLt-q3KJ4KKJxbPO2ShOG5-5vLfAFhUJiB5OLBan7LDnIXKohJh7FM4tW3J0ZyxomtfQxtNRJ0DnjtpChbC_mD5uWDTjWeU5eetjK2CntsJOOaCvm8hbOy4oWK441DhADQMRR3NTe0pv5QbnsDqvoD-Jc3M04K4o9-hvT-54e2p3FBUQJMl31Qft20b0yKbOm-R3aW26r5R7jWhk2Dq72ybDWQlRX5q79atTMfNTJ-qcH0KQpsIJM5-DWbT8IjHCetT_8JJFq_Cv5b-0_qP3T5tQ_-Pk_qxby26nZyec9aJ5nJD_MDDne5U6UQR8mh-RfL-om5aFJhxjKQpP-HJ7pQMJJ0fF00J5d2fcltN5DKl0MLp6Ybb0xynoYXpkbXfnMBMPjamOnaPLy3fAKftnOM46JehL3346-35543bRTLnLy5KJtMDFlePr_b-Lbqx5Ka43tHD7yWCvStKbcOR59K4nnD-A8Kh5R0tJI523f-bjnK-JRJMIG3MOZKxLT0Mj054cL3NctsxQF5l8-sq0x0bO5DDuOQq_L0xvJ5IOMahkMal7xO-L9QlPK5JkgMx6MqpQJQeQ-5KQN3KJmfbL9bT3YjjTLeUrXKPQOHDrKBRbaHJOoDDvdQ6Ocy4LbKxnxJP7--TrRKJ8M3pvbSnjJ-n3R2hc03-OkbfQrLIc03RTE3UQhKfQ_bf--QfbQ0hOeJCrb36ILKln25n7JOpkxhfnxyb5bQRPH-Rv92DQMVU52QqcqEIQHQT3m5-5bbN3ut6T2-DA__I8yfx5; BDUSS_BFESS=RFaH5ETX5OblN1VWp6cEJQVHRyb3ExZVZCWWl4dm9sTGRBWjhiOUwxNmFaZnRpRVFBQUFBJCQAAAAAAAAAAAEAAACKPD6UtPO27jMzOTkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJrY02Ka2NNibU; BDRCVFR[feWj1Vr5u3D]=I67x6TjHwwYf0; delPer=1; H_WISE_SIDS=107320_110085_114551_131862_179347_180636_185631_194519_194530_196427_197471_197711_199576_204915_206122_208721_208809_209204_209568_210299_210323_210836_212296_212873_214115_214129_214137_214142_215127_215176_215730_215957_216618_216837_216883_216941_217125_217167_217186_218390_218445_218452_218477_218537_218549_218597_218636_218801_219245_219249_219253_219359_219363_219405_219448_219452_219510_219548_219581_219713_219731_219734_219738_219743_219818_219823_219844_219907_219943_219946_219947_220067_220072_220300_220322_220336_220602_220608_220774_221016_221107_221116_221118_221120_221371; rsv_i=52836hmAeDV96XNQuaPxsTKgY%2BTQOgfOeSabfr3BPW%2FitMBBbo3KBxloMmJiGLCmruUbzR6VfRwhIAn1J68HM%2FnNnxoEOAk; H_WISE_SIDS_BFESS=107320_110085_114551_131862_179347_180636_185631_194519_194530_196427_197471_197711_199576_204915_206122_208721_208809_209204_209568_210299_210323_210836_212296_212873_214115_214129_214137_214142_215127_215176_215730_215957_216618_216837_216883_216941_217125_217167_217186_218390_218445_218452_218477_218537_218549_218597_218636_218801_219245_219249_219253_219359_219363_219405_219448_219452_219510_219548_219581_219713_219731_219734_219738_219743_219818_219823_219844_219907_219943_219946_219947_220067_220072_220300_220322_220336_220602_220608_220774_221016_221107_221116_221118_221120_221371; plus_lsv=e9e1d7eaf5c62da9; plus_cv=1::m:7.94e+147; SE_LAUNCH=5%3A27634457_0%3A27634457; BDICON=10294984.98; BDPASSGATE=IlPT2AEptyoA_yiU4VK_3kIN8efRYvWAD43GSyRhR6WPfCaWmhH3BrUrWz0HSieXBDP6wZTXebZda5XKXlVXa_EqnBsZp5pQejncxvqOucPTKtB88bUs3rnIWCssoPLTpfIf-3YmEAMzY75KewPJpuo4ivKl73JKb1bMsFn2q_ruAlmiBFKJxHyYK767O-0APNu594rXnExKIUGhWe7sTT0agCMjCGQsawrfitY6C3D5rkoXGurSRv5a_WuCEW28BxSe1eyLzKeoEZMwvp1nVSwT9UiVfuy; POLYFILL=0; MSA_WH=381_669; MSA_PBT=96; MSA_ZOOM=889; COOKIE_SESSION=0_0_0_0_0_0_0_0_0_0_0_0_0_1658067445%7C1%230_0_0_0_0_0_0_0_1658067445%7C1; MSA_PHY_WH=762_1338; BDSVRTM=75' \
-  -H 'Referer: https://www.baidu.com/ssid=8a3cb4f3b6ee333339393e94/from=844b/s?word=%E5%8C%97%E4%BA%ACgdp&sa=tb&ts=7473966&t_kt=0&ie=utf-8&rsv_t=248a1hzNLnlqMGxE7hdL4Dnj786cZK1V2B9rZRw21ghfljTJS5Ja6qhpfQ&ms=1&rsv_pq=9736703758838396570&gpc=&ss=&rqlang=zh&oq=%E5%8C%97%E4%BA%ACgdp' \
-  -H 'Sec-Fetch-Dest: document' \
-  -H 'Sec-Fetch-Mode: navigate' \
-  -H 'Sec-Fetch-Site: same-origin' \
-  -H 'Sec-Fetch-User: ?1' \
-  -H 'Upgrade-Insecure-Requests: 1' \
-  -H 'User-Agent: Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Mobile Safari/537.36' \
-  -H 'sec-ch-ua: ".Not/A)Brand";v="99", "Google Chrome";v="103", "Chromium";v="103"' \
-  -H 'sec-ch-ua-mobile: ?1' \
-  -H 'sec-ch-ua-platform: "Android"' \
-  --compressed
-  ```
-
-### 思路2-zhongjing
-
-zhongjing数据
-
-### 思路3-国家统计局
-
-https://data.stats.gov.cn/search.htm?s=%E6%88%90%E9%83%BD%20%E6%88%BF%E4%BB%B7%E6%8C%87%E6%95%B0

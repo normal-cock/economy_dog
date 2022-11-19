@@ -116,7 +116,12 @@ def load_data():
 load_data()
 
 
-def get_common_area() -> List[Area]:
+def get_common_area(level=-1) -> List[Area]:
+    if level == 1:
+        return _PROVINCE_LIST
+    if level == 2:
+        return _CITY_LIST
+
     return _CITY_LIST + _PROVINCE_LIST
 
 

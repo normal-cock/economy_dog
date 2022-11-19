@@ -6,14 +6,6 @@ from util.data_source import zhongjing
 from util.area_util import Area
 from util.log import logger
 
-'''
-数据来源:
-    baidu页面直接抓取
-    mobile web端点击中经数据小程序进入的一跳web页面。数据更全，格式更稳定
-        1. 通过https://wap.ceidata.cei.cn/listSquences拿到数据的ID
-        2. 通过查询https://wap.ceidata.cei.cn/detail?id={id}查询
-'''
-
 
 def query_gdp(area: Area) -> Tuple[List[GDPItem], str]:
     '''

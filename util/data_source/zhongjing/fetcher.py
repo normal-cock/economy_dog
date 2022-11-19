@@ -7,7 +7,8 @@ import requests
 import enum
 import urllib
 from collections import namedtuple
-from typing import Tuple, List
+from model.core import MONEY_UNIT
+from typing import Dict, Tuple, List
 from util.area_util import Area
 from util.log import logger
 from util.data_source.dto import GDPItem, PopulationItem
@@ -170,24 +171,32 @@ def get_data_item(area: Area, query_data_type: QueryDataType, retry=0) -> Tuple[
     ), ''
 
 
+def query_data_by_item_id(item_id: str) -> Tuple[Dict, str]:
+    resp = requests.get('https://wap.ceidata.cei.cn/detail', params={
+        'id': item_id,
+    })
+    if resp.status_code != 200:
+        return {}, f'status_code={resp.status_code}||get detail error'
+
+    re_result = re.search("var chartData = JSON.parse\(\'(.*)\'\);", resp.text)
+    if re_result == None:
+        return {}, f'content={resp.text}||invalid detail response'
+    if len(re_result.groups()) != 1:
+        return {}, f'groups={re_result.groups()}||invalid detail response'
+    return eval(re_result.groups()[0]), ''
+
+
 def query_gdp(area: Area) -> Tuple[List[GDPItem], str]:
     result_list = []
     item, err_str = get_data_item(area, QueryDataType.GDP, _GET_ID_RETRY_TIME)
     if len(err_str) != 0:
         return result_list, err_str
     times, unit = gdp_unit_parser(item.unit)
-    resp = requests.get('https://wap.ceidata.cei.cn/detail', params={
-        'id': item.id,
-    })
-    if resp.status_code != 200:
-        return result_list, f'status_code={resp.status_code}||get detail error'
+    data_dict, err_str = query_data_by_item_id(item.id)
+    if len(err_str) != 0:
+        return result_list, err_str
 
-    re_result = re.search("var chartData = JSON.parse\(\'(.*)\'\);", resp.text)
-    if re_result == None:
-        return result_list, f'content={resp.text}||invalid detail response'
-    if len(re_result.groups()) != 1:
-        return result_list, f'groups={re_result.groups()}||invalid detail response'
-    for chart_data in eval(re_result.groups()[0]):
+    for chart_data in data_dict:
         if 'innerTime' not in chart_data or 'data' not in chart_data:
             logger.warn(f'chart_data={chart_data}||invalid chart_data')
             continue
@@ -199,35 +208,40 @@ def query_gdp(area: Area) -> Tuple[List[GDPItem], str]:
     return result_list, ''
 
 
+def _get_population_item(area: Area) -> Tuple[Item, str]:
+    '''
+    优先级: 常住人口数>户籍人口数
+    '''
+    item, err_str = get_data_item(
+        area, QueryDataType.PermanentPopulation, _GET_ID_RETRY_TIME)
+    if len(err_str) != 0 or (item.end_time - item.start_time).days/365 < 5:
+        if len(err_str) != 0:
+            logger.info(
+                f'err_str={err_str}||area={area}||get PermanentPopulation error, try to use registered population')
+        else:
+            logger.info(
+                f'area={area}||years={(item.end_time - item.start_time).days/365}||PermanentPopulation is not enough, try to use registered population')
+        item, err_str = get_data_item(
+            area, QueryDataType.RegisteredPopulation, _GET_ID_RETRY_TIME)
+        if len(err_str) != 0:
+            return item, err_str
+        return item, ''
+    return item, ''
+
+
 def query_population(area: Area) -> Tuple[List[PopulationItem], str]:
     # import ipdb
     # ipdb.set_trace()
     result_list = []
-    item, err_str = get_data_item(
-        area, QueryDataType.PermanentPopulation, _GET_ID_RETRY_TIME)
+    item, err_str = _get_population_item(area)
     if len(err_str) != 0:
         return result_list, err_str
-    # 对于常住人口数的统计时间范围小于5年的，用“户籍人口数”
-    if (item.end_time - item.start_time).days/365 < 5:
-        logger.info(
-            f'area={area}||PermanentPopulation is not enough, try to use registered population')
-        item, err_str = get_data_item(
-            area, QueryDataType.RegisteredPopulation, _GET_ID_RETRY_TIME)
-        if len(err_str) != 0:
-            return result_list, err_str
     times = population_unit_parser(item.unit)
-    resp = requests.get('https://wap.ceidata.cei.cn/detail', params={
-        'id': item.id,
-    })
-    if resp.status_code != 200:
-        return result_list, f'status_code={resp.status_code}||get detail error'
+    data_dict, err_str = query_data_by_item_id(item.id)
+    if len(err_str) != 0:
+        return result_list, err_str
 
-    re_result = re.search("var chartData = JSON.parse\(\'(.*)\'\);", resp.text)
-    if re_result == None:
-        return result_list, f'content={resp.text}||invalid detail response'
-    if len(re_result.groups()) != 1:
-        return result_list, f'groups={re_result.groups()}||invalid detail response'
-    for chart_data in eval(re_result.groups()[0]):
+    for chart_data in data_dict:
         if 'innerTime' not in chart_data or 'data' not in chart_data:
             logger.warn(f'chart_data={chart_data}||invalid chart_data')
             continue
@@ -275,26 +289,182 @@ def self_check():
         # time.sleep(1)
 
 
+def query_nationwide_annual_gdp() -> Tuple[List[GDPItem], str]:
+    annual_gdp_data_list, err_str = query_data_by_item_id('kAtf12yQUhc=')
+    if len(err_str) != 0:
+        return [], err_str
+    result_list = []
+
+    for chart_data in annual_gdp_data_list:
+        if 'innerTime' not in chart_data or 'data' not in chart_data:
+            logger.warn(f'chart_data={chart_data}||invalid chart_data')
+            continue
+        result_list.append(GDPItem(
+            year=int(chart_data['innerTime']),
+            gdp=float(chart_data['data']),
+            unit=MONEY_UNIT.RMB,
+        ))
+    return result_list, ''
+
+
+def query_monthly_total_value_4_mainboard_a():
+    '''
+        return list, err_string
+            list的元素为dict {
+                'date': '2022-08',
+                'value': 436439.19
+            }
+    '''
+    # 上交所 主板A+科创板
+    monthly_astock_data_list, err_str = query_data_by_item_id('TOd9e6vvZDU=')
+    if len(err_str) != 0:
+        return [], err_str
+    result_list = []
+    for data in monthly_astock_data_list:
+        date_str = data['innerTime']
+        astock_value = float(data['data'])
+        result_list.append({
+            'date': date_str,
+            'value': astock_value,
+        })
+    return result_list, ''
+
+
+def tmp():
+    import pandas as pd
+    from scipy import stats
+
+    annual_gdp_data_list, err_str = query_data_by_item_id('kAtf12yQUhc=')
+    if len(err_str) != 0:
+        print(err_str)
+        return
+    annual_astock_data_list, err_str = query_data_by_item_id('UMpPQ3uGkco=')
+    if len(err_str) != 0:
+        print(err_str)
+        return
+    annual_gdp_data_dict = {}
+    annual_astock_data_dict = {}
+    for data in annual_gdp_data_list:
+        annual_gdp_data_dict[data['innerTime']] = float(data['data'])
+    for data in annual_astock_data_list:
+        annual_astock_data_dict[data['innerTime']] = float(data['data'])
+    annual_data_list = []
+    annual_index_list = []
+    for year in set(annual_gdp_data_dict.keys()) & set(annual_astock_data_dict.keys()):
+        gdp = annual_gdp_data_dict[str(int(year)-1)]
+        astock = annual_astock_data_dict[year]
+        annual_index_list.append(year)
+        annual_data_list.append({
+            'gdp': gdp,
+            'astock': astock,
+            'proportion': round(100*astock/gdp, 2),
+        })
+    df = pd.DataFrame(annual_data_list, index=annual_index_list).sort_index(
+        ascending=False)
+    print(df['proportion'].describe())
+    print(df)
+
+    # import ipdb
+    # ipdb.set_trace()
+    # 上交所 主板A+科创板
+    monthly_astock_data_list, err_str = query_data_by_item_id('TOd9e6vvZDU=')
+    if len(err_str) != 0:
+        print(err_str)
+        return
+    # 深交所主板 qa/jiGRl81I=
+    monthly_shenzhu_astock_data_list, err_str = query_data_by_item_id(
+        'qa/jiGRl81I=')
+    if len(err_str) != 0:
+        print(err_str)
+        return
+    # 深交所创业板 9JqOvZygdBk=
+    monthly_shenchuang_astock_data_list, err_str = query_data_by_item_id(
+        '9JqOvZygdBk=')
+    if len(err_str) != 0:
+        print(err_str)
+        return
+    shenzhu_dict = {}
+    shenchuang_dict = {}
+    for data in monthly_shenzhu_astock_data_list:
+        shenzhu_dict[data['innerTime']] = float(data['data'])/100
+    for data in monthly_shenchuang_astock_data_list:
+        shenchuang_dict[data['innerTime']] = float(data['data'])
+
+    monthly_data_list = []
+    monthly_index_list = []
+    for data in monthly_astock_data_list:
+        date_str = data['innerTime']
+        year, month = date_str.split('-')
+        # '2022', '2021', '2020', '2019', '2018']:
+        # if year not in ['2007', '2008']:
+        #     continue
+        if month != '10':
+            continue
+        # if date_str not in shenzhu_dict:
+        #     continue
+        gdp = annual_gdp_data_dict[str(int(year)-1)]
+        astock = float(data['data'])
+        # astock = float(data['data']) + shenzhu_dict[date_str]
+        # astock = float(data['data']) + \
+        #     shenzhu_dict[date_str] + shenchuang_dict[date_str]
+        monthly_index_list.append(date_str)
+        monthly_data_list.append({
+            'gdp': gdp,
+            'astock': astock,
+            'proportion': round(100*astock/gdp, 2),
+        })
+    monthly_index_list.append('2022-10')
+    monthly_data_list.append({
+        'gdp': 1143669.72,
+        'astock': 436439.19,
+        'proportion': round(100*436439.19/1143669.72, 2)
+    })
+    df = pd.DataFrame(monthly_data_list, index=monthly_index_list).sort_index(
+        ascending=False)
+    for i in range(2008, 2023):
+        index = f'{i}-10'
+        indexes = [f'{i-j}-10' for j in range(10)]
+        sub_df = df.loc[indexes].sort_index(ascending=False)
+        print(f'\n{index}\n')
+        print(sub_df['proportion'].describe())
+
+        cur_proportion = sub_df.loc[index]['proportion']
+        cur_quantile = stats.percentileofscore(
+            sub_df['proportion'], cur_proportion)
+        print(
+            f'current proportion is {cur_proportion}, current quantile is {cur_quantile}')
+        if i >= 2021:
+            print(sub_df)
+    # import ipdb
+    # ipdb.set_trace()
+    # print(df['proportion'].describe())
+    # print(df)
+
+    # print(annual_gdp_data)
+    # print(annual_astock_data)
+
+
 if __name__ == '__main__':
+    tmp()
     # self_check()
-    area = Area(
-        code='141081000000',
-        name='侯马市',
-        level=3,
-        upper_level_name='临汾市',
-        province_name='山西省',
-        url='http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/14/10/141081.html',
-    )
     # area = Area(
-    #     code='11',
-    #     name='北京市',
-    #     level=1,
-    # upper_level_name = '北京市',
-    #     province_name='北京市',
+    #     code='141081000000',
+    #     name='侯马市',
+    #     level=3,
+    #     upper_level_name='临汾市',
+    #     province_name='山西省',
     #     url='http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/14/10/141081.html',
     # )
-    print(query_gdp(area))
-    print(query_population(area))
+    # # area = Area(
+    # #     code='11',
+    # #     name='北京市',
+    # #     level=1,
+    # # upper_level_name = '北京市',
+    # #     province_name='北京市',
+    # #     url='http://www.stats.gov.cn/tjsj/tjbz/tjyqhdmhcxhfdm/2018/14/10/141081.html',
+    # # )
+    # print(query_gdp(area))
+    # print(query_population(area))
     # print(f'{area.get_full_name()} GDP id: ',
     #         get_data_item(area, QueryDataType.GDP))
     # print(f'{area.get_full_name()} Population id: ',
