@@ -186,11 +186,13 @@ def query_data_by_item_id(item_id: str) -> Tuple[Dict, str]:
     return eval(re_result.groups()[0]), ''
 
 
-def query_gdp(area: Area) -> Tuple[List[GDPItem], str]:
+def query_gdp(area: Area, target_year=0) -> Tuple[List[GDPItem], str]:
     result_list = []
     item, err_str = get_data_item(area, QueryDataType.GDP, _GET_ID_RETRY_TIME)
     if len(err_str) != 0:
         return result_list, err_str
+    if target_year != 0 and item.end_time.year < target_year:
+        return result_list, f'data not updated for year {target_year}'
     times, unit = gdp_unit_parser(item.unit)
     data_dict, err_str = query_data_by_item_id(item.id)
     if len(err_str) != 0:
@@ -229,13 +231,15 @@ def _get_population_item(area: Area) -> Tuple[Item, str]:
     return item, ''
 
 
-def query_population(area: Area) -> Tuple[List[PopulationItem], str]:
+def query_population(area: Area, target_year=0) -> Tuple[List[PopulationItem], str]:
     # import ipdb
     # ipdb.set_trace()
     result_list = []
     item, err_str = _get_population_item(area)
     if len(err_str) != 0:
         return result_list, err_str
+    if target_year != 0 and item.end_time.year < target_year:
+        return result_list, f'data not updated for year {target_year}'
     times = population_unit_parser(item.unit)
     data_dict, err_str = query_data_by_item_id(item.id)
     if len(err_str) != 0:
@@ -305,6 +309,33 @@ def query_nationwide_annual_gdp() -> Tuple[List[GDPItem], str]:
             unit=MONEY_UNIT.RMB,
         ))
     return result_list, ''
+
+
+def query_nationwide_monthly_cpi_increment() -> Tuple[Dict[str, float], str]:
+    # 中国：CPI同比变化率
+    # 中国：CPI 食品和非酒精饮料 同比变化率
+    russia_monthly_overall = 'pWVE6YJ+Lt8='
+    russia_monthly_food = '7CBj9Rf7CaU='
+    us_monthly_overall = '5JHludtJRno='
+    us_monthly_food = 'SRGiSUzDIMk='
+    china_monthly_overall = 'EcCB8nH+Z1I='
+    china_monthly_food = '/bRI72TMucg='
+    europe_monthly_overall = 'UeVyO6t+9L+gG4nRv34zOQ=='
+    europe_monthly_food = 'qIotq9fzD2+jpnCDwFippA=='
+    jp_monthly_overall = 'mjJ27aPk/9c='
+    jp_monthly_food = 'tYeg2xImEyI='
+    monthly_cpi_increment_data_list, err_str = query_data_by_item_id(
+        china_monthly_overall)
+    if len(err_str) != 0:
+        return [], err_str
+    result_dict = {}
+
+    for chart_data in monthly_cpi_increment_data_list:
+        if 'innerTime' not in chart_data or 'data' not in chart_data:
+            logger.warn(f'chart_data={chart_data}||invalid chart_data')
+            continue
+        result_dict[chart_data['innerTime']] = float(chart_data['data'])
+    return result_dict, ''
 
 
 def query_monthly_total_value_4_mainboard_a():
@@ -445,7 +476,17 @@ def tmp():
 
 
 if __name__ == '__main__':
-    tmp()
+    # tmp()
+    print(query_nationwide_annual_gdp())
+    # cpi_increment_dict, err_str = query_nationwide_monthly_cpi_increment()
+    # begin_year = 2002
+    # init_price = 1
+    # for i in range(20):
+    #     cur_year = begin_year + i
+    #     init_price *= ((100+cpi_increment_dict[f'{cur_year}-12'])/100)
+    #     # init_price = round(init_price, 2)
+    # print(f'final price is {round(init_price, 2)}')
+    # print(cpi_increment_dict)
     # self_check()
     # area = Area(
     #     code='141081000000',

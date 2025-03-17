@@ -11,3 +11,9 @@ clean:
 
 run:
 	PYTHONPATH=. python main.py annual_report
+
+run_daily:
+	PYTHONPATH=. python main.py daily_report
+
+run_dr:
+	PYTHONPATH=. python util/dividend_rate/__init__.py

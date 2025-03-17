@@ -57,6 +57,7 @@ class AreaEconomyMetaInfo(object):
         if target_last_date.year <= self.last_data_year:
             return False
         else:
+            # return True
             update_delta = datetime.now() - self.changed_time
             if update_delta.days > 30:
                 return True

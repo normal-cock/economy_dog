@@ -7,6 +7,7 @@ from util.data_source.zhongjing import query_nationwide_annual_gdp, query_monthl
 from util.email import send_html
 from util.log import logger
 
+_CARED_ETF = ['']
 
 def get_astock_status() -> Tuple[str, List, str]:
     '''
@@ -51,7 +52,10 @@ def get_astock_status() -> Tuple[str, List, str]:
         date_str = data['date']
         astock = data['value']
         year, month = date_str.split('-')
-        gdp = annual_gdp_data_dict[int(year)-1]
+        if (int(year)-1) in annual_gdp_data_dict:
+            gdp = annual_gdp_data_dict[int(year)-1]
+        else:
+            gdp = annual_gdp_data_dict[int(year)-2]
 
         monthly_data_list.append({
             'date': date_str,

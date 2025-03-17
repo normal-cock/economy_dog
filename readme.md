@@ -8,6 +8,7 @@
     - [中国房价行情网（待研究）](#中国房价行情网待研究)
     - [世界银行数据](#世界银行数据)
     - [上交所和深交所](#上交所和深交所)
+    - [原材料价格](#原材料价格)
 - [TODO](#todo)
     - [v0.2](#v02)
 - [DONE](#done)
@@ -88,6 +89,12 @@ A股总市值
 上交所：http://www.sse.com.cn/market/view/
 深交所：http://www.szse.cn/market/overview/index.html
 
+### 原材料价格
+
+煤炭 https://tradingeconomics.com/commodity/coal
+    https://coal-price.com/
+锂： https://tradingeconomics.com/commodity/lithium
+
 ## TODO
 
 ### v0.2
@@ -97,7 +104,20 @@ A股总市值
 日报：——Done
     A股总市值可以用上交所总市值代替，看比例都是一样的。观察当前proportion在过去十年的50分位的对比
     大趋势：A股总市值/上一年GDP。关注相同月份的年同比变化
+    股价监控
+        关注的股票连续两个收量上涨预警
+        几大银行的股息率跌落4.5的
+        实时股价
+            A股
+                ak.stock_zh_a_hist_min_em
+                ak.stock_hk_spot_em （没有更新时间，也没有symbol）
+                ak.stock_a_lg_indicator 市盈率，市净率，股息率
+                ak.stock_zh_a_hist
+                ETF
+                    ak.fund_etf_category_sina(symbol='ETF基金') 查询名字
+                    ak.fund_etf_hist_sina(symbol='sh515400')
 cased city中标出每个指标的强、中、弱（强代表超过>=75分位，中代表75分位> >25分位，弱代表低于<=25分位）——Done
+
 70城房价指数
 
 ## DONE

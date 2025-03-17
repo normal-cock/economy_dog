@@ -5,6 +5,7 @@ from biz.daily_report import get_astock_status
 from util.data_source.sse import get_last_trading_day_total_value_4_mainboard_a
 from util.email import send_html
 from util.log import logger
+from util.stock_data.stock_data import need_notice
 
 style = '''
 <head>
@@ -66,12 +67,23 @@ style = '''
 
 
 def daily_report_by_email():
-    final_html = ''
+    cared_etf_final_html = ''
+    _cared_etf = ['新能源ETF', '大数据ETF', '酒ETF', '芯片ETF', '上证指数ETF']
+    cared_etf_result_dict, cared_etf_err_dict = need_notice(_cared_etf)
+    cared_etf_number = list(cared_etf_result_dict.values()).count(True)
+    cared_etf_final_html = f'''
+        <div
+            style="{"color:red;font-weight:bold;" if cared_etf_number>0 else ''}"
+        >{cared_etf_number} cared etf</div>
+        <div>{cared_etf_result_dict, cared_etf_err_dict}</div>
+    '''
+
+    appendix_final_html = ''
     cur_trade_date = ''
     for i in range(1):
         cur_trade_date, monthly_data_list, err_string = get_astock_status()
         if len(err_string) != 0:
-            final_html = f'get_astock_status error: {err_string}'
+            appendix_final_html = f'get_astock_status error: {err_string}'
             break
 
         tmp_cur_date = datetime.datetime.strptime(
@@ -79,7 +91,7 @@ def daily_report_by_email():
         last_trading_day_result, err_string = get_last_trading_day_total_value_4_mainboard_a(
             tmp_cur_date)
         if len(err_string) != 0:
-            final_html = f'cur_trading_day={cur_trade_date}||get_last_trading_day_total_value_4_mainboard_a error: {err_string}'
+            appendix_final_html = f'cur_trading_day={cur_trade_date}||get_last_trading_day_total_value_4_mainboard_a error: {err_string}'
             break
         last_trading_day_astock = last_trading_day_result['value']
 
@@ -109,6 +121,9 @@ def daily_report_by_email():
                 change_rate = round(100 *
                                     (cur_proportion - last_proportion)/last_proportion, 2)
                 cur_proportion = f'{cur_proportion}({change_rate}%, {last_proportion})'
+                last_trading_day_quantile = round(stats.percentileofscore(
+                    sub_df['proportion'], last_proportion), 2)
+                cur_quantile = f'{cur_quantile}({last_trading_day_quantile})'
             result_list.append((cur_proportion, cur_quantile,
                                 quantile_50, quantile_25, quantile_75, round(cur_record['astock']/10000, 2), round(cur_record['gdp']/10000, 2)))
 
@@ -130,13 +145,17 @@ def daily_report_by_email():
         },
             inplace=True
         )
-        final_html = f'''
-        {style}
-        {result_df.style.format(precision=2).to_html()}
-        '''
+        appendix_final_html = result_df.style.format(precision=2).to_html()
 
-    # print(final_html)
-    send_html(f'[EDOG]{cur_trade_date}经济报告', final_html)
+    final_html = f'''
+        {style}
+        <h2>1. Cared ETF Status</h2>
+        {cared_etf_final_html}
+        <h2>Appendix</h2>
+        {appendix_final_html}
+    '''
+    print(result_df)
+    # send_html(f'[EDOG]{cur_trade_date}经济报告', final_html)
     logger.info(f'send succeed for {cur_trade_date}')
     return ''
 

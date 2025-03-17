@@ -61,10 +61,12 @@ def _load_or_download_e_info(
     err_str = ''
     e_info = None
     tmp_date = target_date
+    # import ipdb
+    # ipdb.set_trace()
     e_meta_info = get_meta_data(session, area)
     need_redownload = e_meta_info.need_redownload(tmp_date)
     if need_redownload:
-        err_str = download_and_save_one_area(session, area)
+        err_str = download_and_save_one_area(session, area, tmp_date.year)
         if len(err_str) != 0:
             err_str = f'err_str={err_str}||area={area}||error when download_and_save_one_area'
             return None, err_str

@@ -7,22 +7,22 @@ from util.area_util import Area
 from util.log import logger
 
 
-def query_gdp(area: Area) -> Tuple[List[GDPItem], str]:
+def query_gdp(area: Area, target_year=0) -> Tuple[List[GDPItem], str]:
     '''
     return gdp_list, err_str
         其中gdp_list格式为[util.data_source.validator.GDPItem]
     '''
     # return baidu.query_gdp(area)
-    return zhongjing.query_gdp(area)
+    return zhongjing.query_gdp(area, target_year=target_year)
 
 
-def query_population(area: Area) -> Tuple[List[PopulationItem], str]:
+def query_population(area: Area, target_year=0) -> Tuple[List[PopulationItem], str]:
     '''
     return population_list, err_str
         其中population_list格式为[util.data_source.validator.PopulationItem]，人口单位为万
     '''
     # return baidu.query_population(area)
-    return zhongjing.query_population(area)
+    return zhongjing.query_population(area, target_year=target_year)
 
 
 if __name__ == '__main__':

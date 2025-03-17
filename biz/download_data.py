@@ -11,13 +11,13 @@ def download_data(year):
     pass
 
 
-def download_and_save_one_area(session: Session, area: Area) -> str:
+def download_and_save_one_area(session: Session, area: Area, target_year=0) -> str:
     '''
     return
         err_str
     '''
     logger.info(f'try to download data for {area}')
-    result_list, err_str = query_population(area)
+    result_list, err_str = query_population(area, target_year=target_year)
     if len(err_str) != 0:
         return f'err_str={err_str}||query_population error'
     for result in result_list:
@@ -32,7 +32,7 @@ def download_and_save_one_area(session: Session, area: Area) -> str:
     logger.info(
         f'upserted={len(result_list)}||area={area}||finished download population data for {area.get_full_name()}')
 
-    result_list, err_str = query_gdp(area)
+    result_list, err_str = query_gdp(area, target_year=target_year)
     if len(err_str) != 0:
         return f'err_str={err_str}||query_gdp error'
     for result in result_list:
