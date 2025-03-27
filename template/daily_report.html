@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Integrated Plotly Chart</title>
+</head>
+
+<body>
+    <h1>Integrated Plotly Chart</h1>
+    <!-- 嵌入生成的 HTML 片段 -->
+    <!-- <div id="plotly-chart"> -->
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>当前值</th>
+            <th>y10分位</th>
+            <th>y10趋势(月均值)</th>
+            <th>y50分位</th>
+            <th>y10趋势(年均值)</th>
+        </tr>
+        {% for m in metrics %}
+        <tr>
+            <th>{{ m[0] }}</th>
+            <td>{{ m[1] }}</td>
+            <td>{{ m[2] }}</td>
+            <td>{{ m[3] }}</td>
+            <td>{{ m[4] }}</td>
+            <td>{{ m[5] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- 这里插入生成的 HTML 片段 -->
+    <!-- </div> -->
+</body>
+
+</html>

@@ -1,8 +1,8 @@
 import json
 from typing import Tuple, List
-from util.data_source.dto import GDPItem, PopulationItem
+from metric.data_source.dto import GDPItem, PopulationItem
 # from util.data_source import baidu
-from util.data_source import zhongjing
+from metric.data_source import zhongjing
 from util.area_util import Area
 from util.log import logger
 

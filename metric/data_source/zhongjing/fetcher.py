@@ -11,8 +11,8 @@ from model.core import MONEY_UNIT
 from typing import Dict, Tuple, List
 from util.area_util import Area
 from util.log import logger
-from util.data_source.dto import GDPItem, PopulationItem
-from util.data_source.parser import population_unit_parser, gdp_unit_parser
+from metric.data_source.dto import GDPItem, PopulationItem
+from metric.data_source.parser import population_unit_parser, gdp_unit_parser
 
 s = requests.Session()
 Item = namedtuple("Item", ["id", "unit", "start_time", "end_time"])

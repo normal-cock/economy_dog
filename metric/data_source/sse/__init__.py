@@ -72,11 +72,11 @@ def get_last_trading_day_total_value_4_mainboard_a(cur_date: datetime.date):
 
 
 if __name__ == '__main__':
-    print(get_cur_total_value_4_mainboard_a())
-    print(get_cur_total_value_4_mainboard_a('2022-10-27'))
-    cur_date_str = '2022-10-24'
-    total_value, err_string = get_cur_total_value_4_mainboard_a(cur_date_str)
-    cur_date = datetime.datetime.strptime(total_value['date'], '%Y%m%d').date()
-    print(f'last trading day for {cur_date_str} is:',
-          get_last_trading_day_total_value_4_mainboard_a(cur_date))
-    print(get_cur_total_value_4_mainboard_a('2022-10-23'))
+    # print(get_cur_total_value_4_mainboard_a())
+    # print(get_cur_total_value_4_mainboard_a('2022-12-31'))
+    # cur_date_str = '2022-10-24'
+    # total_value, err_string = get_cur_total_value_4_mainboard_a(cur_date_str)
+    # cur_date = datetime.datetime.strptime(total_value['date'], '%Y%m%d').date()
+    # print(f'last trading day for {cur_date_str} is:',
+    #       get_last_trading_day_total_value_4_mainboard_a(cur_date))
+    print(get_cur_total_value_4_mainboard_a('2023-12-31'))
