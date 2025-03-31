@@ -4,7 +4,7 @@
 * value: float, 指标的值
 * unit: str, 单位
     * None
-    * 钱: 万人民币, 亿人民币，万美元，亿美元
+    * 钱: 人民币，美元，港币
     * Pct
 '''
 import datetime

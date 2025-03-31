@@ -1,0 +1,132 @@
+[
+    {
+        "region": "us",
+        "name": "可口可乐",
+        "symbol": "KO"
+    },
+    {
+        "region": "us",
+        "name": "谷歌",
+        "symbol": "GOOG"
+    },
+    {
+        "region": "us",
+        "name": "拼多多",
+        "symbol": "PDD"
+    },
+    {
+        "region": "us",
+        "name": "网易",
+        "symbol": "NTES"
+    },
+    {
+        "region": "us",
+        "name": "京东",
+        "symbol": "JD"
+    },
+    {
+        "region": "us",
+        "name": "苹果",
+        "symbol": "AAPL"
+    },
+    {
+        "region": "us",
+        "name": "伯克希尔",
+        "symbol": "BRK.A"
+    },
+    {
+        "region": "cn",
+        "name": "格力电器",
+        "symbol": "000651"
+    },
+    {
+        "region": "cn",
+        "name": "美的集团",
+        "symbol": "000333"
+    },
+    {
+        "region": "cn",
+        "name": "比亚迪",
+        "symbol": "002594"
+    },
+    {
+        "region": "cn",
+        "name": "韦尔股份",
+        "symbol": "603501"
+    },
+    {
+        "region": "hk",
+        "name": "小米",
+        "symbol": "01810"
+    },
+    {
+        "region": "hk",
+        "name": "中国海洋石油",
+        "symbol": "00883"
+    },
+    {
+        "region": "cn",
+        "name": "中国神华",
+        "symbol": "601088"
+    },
+    {
+        "region": "cn",
+        "name": "长江电力",
+        "symbol": "600900"
+    },
+    {
+        "region": "cn",
+        "name": "中国核电",
+        "symbol": "601985"
+    },
+    {
+        "region": "cn",
+        "name": "华能水电",
+        "symbol": "600025"
+    },
+    {
+        "region": "cn",
+        "name": "招商银行",
+        "symbol": "600036"
+    },
+    {
+        "region": "cn",
+        "name": "中国银行",
+        "symbol": "601988"
+    },
+    {
+        "region": "cn",
+        "name": "泸州老窖",
+        "symbol": "000568"
+    },
+    {
+        "region": "cn",
+        "name": "贵州茅台",
+        "symbol": "600519"
+    },
+    {
+        "region": "cn",
+        "name": "福耀玻璃",
+        "symbol": "600660"
+    },
+    {
+        "region": "cn",
+        "name": "中国平安",
+        "symbol": "601318"
+    },
+    {
+        "region": "hk",
+        "name": "腾讯",
+        "symbol": "00700"
+    },
+    {
+        "region": "hk",
+        "name": "快手-w",
+        "symbol": "01024"
+    },
+    {
+        "region": "hk",
+        "name": "阿里巴巴-w",
+        "symbol": "09988"
+    }
+]
